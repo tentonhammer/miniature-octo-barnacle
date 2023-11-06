@@ -6,7 +6,7 @@ const isProduction = process.env.NODE_ENV == 'production';
 const stylesHandler = MiniCssExtractPlugin.loader;
 const config = {
   mode: 'development',
-  entry: './src/index.tsx',
+  entry: './src/app/index.tsx',
   output: { path: path.resolve(__dirname, 'dist') },
   devServer: {
     open: true,
@@ -15,17 +15,33 @@ const config = {
     hot: true,
   },
   plugins: [new HtmlWebpackPlugin({ template: 'index.html' }), new MiniCssExtractPlugin()],
+  resolve: { extensions: ['.tsx', '.ts', '.jsx', '.js', '.css', '.scss'] },
   module: {
     rules: [
-      { test: /\.(ts|tsx)$/i, loader: 'ts-loader', exclude: ['/node_modules/'] },
       { test: /\.css$/i, use: [stylesHandler, 'css-loader'] },
-      { test: /\.s[ac]ss$/i, use: [stylesHandler, 'css-loader', 'sass-loader'] },
+      {
+        test: /\.(css|scss|sass|less)$/,
+        use: [
+          stylesHandler,
+          { loader: 'style-loader' },
+          {
+            loader: 'css-loader',
+            options: { modules: true },
+          },
+          {
+            loader: 'sass-loader',
+            options: {
+              sourceMap: true,
+            },
+          },
+        ],
+      },
       { test: /\.(eot|svg|ttf|woff|woff2|png|jpg|gif)$/i, type: 'asset' },
+      { test: /\.(ts|tsx)$/i, loader: 'ts-loader', exclude: ['/node_modules/'] },
       // Add your rules for custom modules here
       // Learn more about loaders from https://webpack.js.org/loaders/
     ],
   },
-  resolve: { extensions: ['.tsx', '.ts', '.jsx', '.js', '...'] },
 };
 module.exports = () => {
   if (isProduction) {
